@@ -1,0 +1,50 @@
+# Prerrequisitos
+*.d
+
+# Archivos objeto compilados
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Archivos y directorios de construcción (Build)
+build/
+out/
+bin/
+obj/
+
+# Archivos generados por CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+
+# Archivos específicos de IDEs y editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+*.cbp
+*.depend
+*.layout
+
+# Archivos generados por Qt
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.qmake.stash
+*.pro.user
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
