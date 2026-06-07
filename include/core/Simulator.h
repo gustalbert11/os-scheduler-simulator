@@ -36,5 +36,6 @@ public:
     int getCurrentTick() const;
     const std::vector<std::shared_ptr<Process>>& getReadyQueue() const;
     const std::vector<std::shared_ptr<Process>>& getBlockedQueue() const;
+    const std::vector<std::shared_ptr<Process>>& getTerminatedQueue() const { return terminatedQueue; }
     std::shared_ptr<Process> getRunningProcess() const;
 };

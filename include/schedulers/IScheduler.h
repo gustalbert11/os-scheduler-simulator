@@ -12,7 +12,7 @@ public:
 
     // Para algoritmos expulsivos (como Round Robin o SRTF). 
     // Por defecto retorna false para algoritmos no expulsivos (FCFS, SJF).
-    virtual bool shouldPreempt(std::shared_ptr<Process> currentProcess) {
+    virtual bool shouldPreempt(std::shared_ptr<Process> currentProcess, const std::vector<std::shared_ptr<Process>>& readyQueue) {
         return false; 
     }
     

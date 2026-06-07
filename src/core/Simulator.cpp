@@ -61,7 +61,7 @@ void Simulator::advanceTick() {
             runningProcess = nullptr; // Liberar la CPU
         } 
         // Verificar expulsión (Preemption) si el algoritmo lo dicta (ej. Round Robin)
-        else if (scheduler && scheduler->shouldPreempt(runningProcess)) {
+        else if (scheduler && scheduler->shouldPreempt(runningProcess, readyQueue)) {
             runningProcess->setState(ProcessState::READY);
             readyQueue.push_back(runningProcess);
             runningProcess = nullptr;
