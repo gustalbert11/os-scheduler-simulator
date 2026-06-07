@@ -40,6 +40,7 @@ private:
     QPushButton* btnStartPause;
     QPushButton* btnStep;
     QPushButton* btnRandomProcess;
+    QLabel* infoLabel;
 
     // --- Controles del Panel de Colas (Visualización) ---
     QTableWidget* readyQueueTable;

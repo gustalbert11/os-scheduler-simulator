@@ -23,6 +23,61 @@ void MainWindow::setupUI() {
     QWidget* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
+    // === ESTILO VISUAL: GLASSMORPHISM Y DARK MODE ===
+    // Fondo principal con gradiente
+    centralWidget->setStyleSheet(R"(
+        QWidget {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0f2027, stop:0.5 #203a43, stop:1 #2c5364);
+            color: #ecf0f1;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        QGroupBox {
+            background-color: rgba(255, 255, 255, 10);
+            border: 1px solid rgba(255, 255, 255, 40);
+            border-radius: 10px;
+            margin-top: 2ex;
+            font-weight: bold;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 15px;
+            padding: 0 5px;
+            color: #3498db;
+        }
+        QPushButton {
+            background-color: rgba(52, 152, 219, 40);
+            border: 1px solid rgba(52, 152, 219, 80);
+            border-radius: 6px;
+            padding: 8px 15px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: rgba(52, 152, 219, 80);
+        }
+        QPushButton:disabled {
+            background-color: rgba(127, 140, 141, 20);
+            color: #7f8c8d;
+        }
+        QTableWidget {
+            background-color: rgba(0, 0, 0, 40);
+            alternate-background-color: rgba(255, 255, 255, 5);
+            gridline-color: rgba(255, 255, 255, 20);
+            border: 1px solid rgba(255, 255, 255, 30);
+            border-radius: 5px;
+        }
+        QHeaderView::section {
+            background-color: rgba(0, 0, 0, 60);
+            padding: 4px;
+            border: none;
+            font-weight: bold;
+        }
+        QComboBox, QSpinBox {
+            background-color: rgba(0, 0, 0, 50);
+            border: 1px solid rgba(255, 255, 255, 50);
+            border-radius: 4px;
+            padding: 4px;
+        }
+    )");
     // Layout principal vertical
     QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->setSpacing(20); // Espacio entre paneles
@@ -37,41 +92,53 @@ void MainWindow::setupUI() {
 
 void MainWindow::createConfigPanel(QVBoxLayout* mainLayout) {
     QGroupBox* configGroup = new QGroupBox("Configuracion de Simulacion");
-    QHBoxLayout* configLayout = new QHBoxLayout(configGroup);
+    
+    // Layout principal de este panel será VERTICAL
+    QVBoxLayout* groupLayout = new QVBoxLayout(configGroup);
 
-    // Selector de Algoritmo
-    configLayout->addWidget(new QLabel("Algoritmo:"));
+    // --- 1. FILA DE CONTROLES (Horizontal) ---
+    QHBoxLayout* controlsLayout = new QHBoxLayout();
+
+    controlsLayout->addWidget(new QLabel("Algoritmo:"));
     algorithmSelector = new QComboBox();
     algorithmSelector->addItems({"FCFS", "SJF", "SRTF", "Round Robin", "Prioridades (No Expulsivo)", "Prioridades (Expulsivo)", "Aleatorio"});
     connect(algorithmSelector, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::onAlgorithmChanged);
-    configLayout->addWidget(algorithmSelector);
+    controlsLayout->addWidget(algorithmSelector);
 
-    // Quantum (Solo habilitado para Round Robin)
-    configLayout->addWidget(new QLabel("Quantum:"));
+    controlsLayout->addWidget(new QLabel("Quantum:"));
     quantumSpinBox = new QSpinBox();
     quantumSpinBox->setRange(1, 100);
-    quantumSpinBox->setEnabled(false); // Deshabilitado por defecto
+    quantumSpinBox->setEnabled(false);
     connect(quantumSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::applySelectedAlgorithm);
-    configLayout->addWidget(quantumSpinBox);
+    controlsLayout->addWidget(quantumSpinBox);
 
-    configLayout->addWidget(new QLabel("Velocidad Tick (ms):"));
+    controlsLayout->addWidget(new QLabel("Velocidad Tick (ms):"));
     tickTimeSpinBox = new QSpinBox();
-    tickTimeSpinBox->setRange(100, 5000); // Entre 0.1s y 5s
-    tickTimeSpinBox->setValue(1000); // 1 segundo por defecto
+    tickTimeSpinBox->setRange(100, 5000);
+    tickTimeSpinBox->setValue(1000);
     tickTimeSpinBox->setSingleStep(100);
-    configLayout->addWidget(tickTimeSpinBox);
-    
-    // Botones de acción
+    controlsLayout->addWidget(tickTimeSpinBox);
+
     btnRandomProcess = new QPushButton("Generar Proceso Aleatorio");
-    connect(btnRandomProcess, &QPushButton::clicked, this, &MainWindow::onGenerateRandomProcess);
     btnStep = new QPushButton("Avanzar 1 Tick");
-    connect(btnStep, &QPushButton::clicked, this, &MainWindow::advanceSimulationStep);
     btnStartPause = new QPushButton("Iniciar Simulacion");
+
+    connect(btnRandomProcess, &QPushButton::clicked, this, &MainWindow::onGenerateRandomProcess);
+    connect(btnStep, &QPushButton::clicked, this, &MainWindow::advanceSimulationStep);
     connect(btnStartPause, &QPushButton::clicked, this, &MainWindow::onStartPauseClicked);
-    
-    configLayout->addWidget(btnRandomProcess);
-    configLayout->addWidget(btnStep);
-    configLayout->addWidget(btnStartPause);
+
+    controlsLayout->addWidget(btnRandomProcess);
+    controlsLayout->addWidget(btnStep);
+    controlsLayout->addWidget(btnStartPause);
+
+    // --- 2. FILA DE INFORMACIÓN TEÓRICA ---
+    infoLabel = new QLabel("Selecciona un algoritmo para ver su descripción.");
+    infoLabel->setWordWrap(true);
+    infoLabel->setStyleSheet("background-color: rgba(0,0,0,40); padding: 10px; border-radius: 5px; border-left: 4px solid #f39c12; margin-top: 10px;");
+
+    // --- ENSAMBLAR ---
+    groupLayout->addLayout(controlsLayout); // Ponemos los botones arriba
+    groupLayout->addWidget(infoLabel);      // Ponemos el texto abajo
 
     mainLayout->addWidget(configGroup);
 }
@@ -87,12 +154,13 @@ void MainWindow::createQueuesPanel(QVBoxLayout* mainLayout) {
     readyQueueTable->setHorizontalHeaderLabels({"PID", "CPU Restante", "Prioridad"});
     readyLayout->addWidget(readyQueueTable);
     queuesLayout->addWidget(readyGroup);
-
+    readyQueueTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     // 2. CPU Actual (Centro)
     QGroupBox* cpuGroup = new QGroupBox("CPU en Ejecucion");
     QVBoxLayout* cpuLayout = new QVBoxLayout(cpuGroup);
     currentCpuLabel = new QLabel("CPU OCIOSA");
     currentCpuLabel->setAlignment(Qt::AlignCenter);
+    cpuGroup->setMinimumWidth(200);
     // Agregaremos estilos (QSS) más tarde para que parezca un monitor
     cpuLayout->addWidget(currentCpuLabel);
     queuesLayout->addWidget(cpuGroup);
@@ -102,6 +170,7 @@ void MainWindow::createQueuesPanel(QVBoxLayout* mainLayout) {
     QVBoxLayout* blockedLayout = new QVBoxLayout(blockedGroup);
     blockedQueueTable = new QTableWidget(0, 2);
     blockedQueueTable->setHorizontalHeaderLabels({"PID", "E/S Restante"});
+    blockedQueueTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     blockedLayout->addWidget(blockedQueueTable);
     queuesLayout->addWidget(blockedGroup);
 
@@ -124,12 +193,35 @@ void MainWindow::createStatsPanel(QVBoxLayout* mainLayout) {
 }
 
 void MainWindow::onAlgorithmChanged(int index) {
-    // Si el índice corresponde a Round Robin (posición 3 en nuestra lista), habilitamos el Quantum
-    if (algorithmSelector->currentText() == "Round Robin") {
-        quantumSpinBox->setEnabled(true);
-    } else {
+    QString algo = algorithmSelector->currentText();
+    QString baseInfo = "<b>Parámetros de Generación:</b> Ráfaga CPU (2 a 12 ticks), Ráfaga E/S (0 a 4 ticks), Prioridad (1 a 5, donde 1 es la urgencia más alta).<br><br>";
+    QString algoInfo = "";
+
+    if (algo == "FCFS") {
         quantumSpinBox->setEnabled(false);
+        algoInfo = "<b>FCFS (First-Come, First-Served):</b> El primer proceso en llegar a la cola es el primero en usar la CPU. <i>No expulsivo.</i>";
+    } else if (algo == "SJF") {
+        quantumSpinBox->setEnabled(false);
+        algoInfo = "<b>SJF (Shortest Job First):</b> Selecciona el proceso con la ráfaga de CPU original más corta. <i>No expulsivo.</i>";
+    } else if (algo == "SRTF") {
+        quantumSpinBox->setEnabled(false);
+        algoInfo = "<b>SRTF (Shortest Remaining Time First):</b> Selecciona el proceso al que le quede menos tiempo de ejecución. <i>Expulsivo.</i>";
+    } else if (algo == "Round Robin") {
+        quantumSpinBox->setEnabled(true);
+        algoInfo = "<b>Round Robin:</b> Cada proceso recibe una porción de tiempo equitativa (Quantum). Si no termina, regresa a la cola. <i>Expulsivo.</i>";
+    } else if (algo == "Prioridades (No Expulsivo)") {
+        quantumSpinBox->setEnabled(false);
+        algoInfo = "<b>Prioridades (No Expulsivo):</b> Ejecuta el proceso con el número de prioridad más bajo (mayor urgencia). No interrumpe ejecuciones.";
+    } else if (algo == "Prioridades (Expulsivo)") {
+        quantumSpinBox->setEnabled(false);
+        algoInfo = "<b>Prioridades (Expulsivo):</b> Si llega un proceso más urgente a la cola, el proceso actual es retirado de la CPU inmediatamente.";
+    } else if (algo == "Aleatorio") {
+        quantumSpinBox->setEnabled(false);
+        algoInfo = "<b>Aleatorio:</b> Selecciona el próximo proceso al azar. Usado únicamente para fines académicos y comparativos. <i>No expulsivo.</i>";
     }
+
+    infoLabel->setText(baseInfo + algoInfo);
+    
     // Aplicar el nuevo algoritmo al simulador
     applySelectedAlgorithm();
 }
@@ -245,7 +337,7 @@ void MainWindow::updateUI() {
             blockedQueueTable->item(row, col)->setTextAlignment(Qt::AlignCenter);
         }
     }
-    
+
     // === 4. ACTUALIZAR PROMEDIOS SI HAY PROCESOS TERMINADOS ===
     auto terminados = simulator->getTerminatedQueue();
     if (!terminados.empty()) {
