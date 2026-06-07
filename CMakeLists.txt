@@ -40,7 +40,8 @@ set(SCHEDULER_SOURCES
 
 # Interfaz Gráfica (Ventanas y controles)
 set(UI_SOURCES
-    # ui/MainWindow.cpp
+    src/ui/MainWindow.cpp
+    include/ui/MainWindow.h
 )
 
 # Archivo principal
