@@ -32,5 +32,6 @@ Este proyecto utiliza CMake para gestionar su compilación de manera multiplataf
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone <URL_DE_TU_REPOSITORIO>
+   git clone https://github.com/gustalbert11/os-scheduler-simulator.git
    cd os-scheduler-simulator
+
